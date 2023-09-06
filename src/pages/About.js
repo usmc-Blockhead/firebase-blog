@@ -6,7 +6,7 @@ const About = () => {
         <div className="col-md-12">
             <div className="row mx-0">
                 <h1>
-                    About Me!
+                    About Me
                 </h1>
                 <p>
                     Hello, my name is <strong>Christa Cooper</strong> and I am a full-stack web developer. I am passionate about creating user-friendly and responsive web applications. I am a quick learner and a team player, and I am always looking for new challenges and opportunities to grow as a developer. I am currently seeking a junior role in full-stack or front-end development, where I can apply my skills and knowledge to create innovative and user-friendly solutions for real-world problems.

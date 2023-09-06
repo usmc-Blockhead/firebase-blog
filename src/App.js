@@ -11,6 +11,7 @@ import AddEditBlog from "./pages/AddEditBlog";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import Header from "./components/Header";
+import Blogs from "./pages/Blogs";
 
 function App() {
   const [active, setActive] = useState("home");
@@ -21,6 +22,7 @@ function App() {
       <ToastContainer position="top-center"/>
       <Routes>
         <Route path="/" element={<Home />}/>
+        <Route path="/blogs" element={<Blogs />}/>
         <Route path="/detail/:id" element={<Detail />}/>
         <Route path="/create" element={<AddEditBlog />}/>
         <Route path="/update/:id" element={<AddEditBlog />}/>
