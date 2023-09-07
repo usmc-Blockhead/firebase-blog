@@ -1,9 +1,12 @@
+import { useState } from "react";
 import React from "react";
 import { Link } from "react-router-dom";
 
 const Header = ({ active, setActive }) => {
+    const [isNavExpanded, setIsNavExpanded] = useState(false);
+
     return (
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <nav className="navbar navbar-expand-lg navbar-light bg-light sticky-top">
             <div className="container-fluid bg-faded padding-media">
                 <div className="container padding-media">
                     <nav className="navbar navbar-toggleable-md navbar-light">
@@ -16,10 +19,15 @@ const Header = ({ active, setActive }) => {
                             aria-controls="navbarSupportedContent"
                             aria-expanded="true"
                             aria-label="Toggle Navigation"
-                        >
+                            onClick={() => {
+                                setIsNavExpanded(!isNavExpanded);
+                            }}>
                             <span className="fa fa-bars"></span>
                         </button>
-                        <div className="collaspe navbar-collapse">
+                        <div className={
+                            isNavExpanded ? "navbar-collapse collapse show" : "navbar-collapse collapse"
+                            }
+                        >
                             <ul
                                 className="navbar-nav me-auto mb-2 mb-lg-0"
                                 id="navbarSupportedContent">
@@ -39,22 +47,25 @@ const Header = ({ active, setActive }) => {
                                     style={{ textDecoration: "none" }}>
                                     <li
                                         className={`nav-item nav-link ${
-                                            active === "articles" ? "active" : ""
+                                            active === "articles"
+                                                ? "active"
+                                                : ""
                                         }`}
                                         onClick={() => setActive("Articles")}>
                                         Articles
                                     </li>
                                 </Link>
-                                {/* <Link to="/create" style={{textDecoration: "none"}}>
-                                    <li 
+                                <Link
+                                    to="/create"
+                                    style={{ textDecoration: "none" }}>
+                                    <li
                                         className={`nav-item nav-link ${
                                             active === "create" ? "active" : ""
                                         }`}
-                                        onClick={() => setActive("create")}
-                                    >
+                                        onClick={() => setActive("create")}>
                                         Create
                                     </li>
-                                </Link> */}
+                                </Link>
                                 <Link
                                     to="/about"
                                     style={{ textDecoration: "none" }}>

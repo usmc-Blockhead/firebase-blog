@@ -36,6 +36,12 @@ $pink:#e451df;
 	transition:         all $transition ease;
 }
 
+.container {
+	max-width: 90%;
+	margin-right: auto;
+	margin-left: auto;
+}
+
 .paddding {
 	padding-left: 0!important;
 	padding-right: 0!important;
@@ -46,6 +52,25 @@ $pink:#e451df;
 	vertical-align: center;
 }
 
+.hamburger {
+	border: 0;
+	height: 40px;
+	width: 40px;
+	padding: 0.5rem;
+	border-radius: 50%;
+	background-color: #283b8b;
+	cursor: pointer;
+	transition: background-color 0.2s ease-in-out;
+	position: absolute;
+	top: 50%;
+	right: 25px;
+	transform: translateY(-50%);
+	display: none;
+}
+
+.hamburger:hover {
+background-color: #2642af;
+}
 
 // Header
 .navbar-light .navbar-nav .open > .nav-link, .navbar-light .navbar-nav .active > .nav-link, .navbar-light .navbar-nav .nav-link.open, .navbar-light .navbar-nav .nav-link.active {

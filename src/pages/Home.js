@@ -8,14 +8,27 @@ const Home = () => {
                 <h1>
                     Welcome to my_Blog!
                 </h1>
+                {/* <p>---------------------------</p>
+                <h2>September 06, 2023</h2>
+                <p>
+                    With the Blog actually 
+                </p> */}
+                <p>---------------------------</p>
+                <h2>September 05, 2023</h2>
+                <p>
+                    I embarked on a journey to create a React blog without prior knowledge of how to deploy it to Firebase. In my quest for guidance, I stumbled upon a fantastic article titled "How to Deploy a React Application to Firebase" by Mritunjay Gupta on Knowledgehut.com. This article expertly guided me through the deployment process.
+                    Thanks to this invaluable resource, I successfully deployed the initial "create-react-app" template to Firebase. Now, my blog is live and easily updatable through Github actions, ensuring a seamless editing process. I am thrilled to share this exciting journey with you, as I transform that initial code into the blog you see before you today.
+                </p>
                 <p>---------------------------</p>
                 <h2>September 04, 2023</h2>
                 <p>
-                    I wanted to create a project for my portfolio that would be useful and show my versatility.  I also wanted to create a project that I could build in stages and take you along on the journey and the mishaps that I will encounter along the way.  I researched many different ways to build a blog and decided to use React and Firebase.
+                    I aspired to craft a portfolio project that would not only demonstrate my versatility but also serve a practical purpose. My aim was to construct a project from its foundation in incremental stages, providing you with insights into the journey and the inevitable hiccups I'd encounter along the way. Moreover, I sought to capture the essence of being a junior developer in today's competitive job market.
+
+                    After thorough research into various approaches for creating a blog, I settled on leveraging the power of React and Firebase to bring my vision to life.
                 </p>
                 <p>---------------------------</p>
                 <p>
-                    Come with me on a journey while I build this blog to include in my portfolio. I will be adding new features and functionality as we continue along.
+                    Join me on this exciting journey as I meticulously craft and expand this blog, destined to become a prominent piece in my portfolio. With each step we take, I'll be introducing new features and enhancing its functionality to create a captivating and dynamic web experience. Stay tuned for the ongoing evolution of this project!
                 </p>  
                 <p>
                     I will be using the following technologies:
@@ -39,11 +52,8 @@ const Home = () => {
                         <li>React Icons for icons</li>
                     </ul>
                 </p>
-                <p>---------------------------</p>
-                <h2>September 05, 2023</h2>
-                <p>
-                    I embark on this journey to build a blog using React not really certain how to deploy to Firebase.  So I turned to the interenet for some support and found a great article on Knowledgehut.com <a href="https://www.knowledgehut.com/blog/web-development/deploying-react-app-to-firebase#create-a-simple-react-application-with-create-react-app-%C2%A0">How to Deploy React Application to Firebase</a>  by Mritunjay Gupta that walked me through the process.  I was able to deploy the starter "create-react-app" application to Firebase and it is now live.  I am so excited to be able to share this journey with you, as I take that starter code and turn it into this blog.
-                </p>
+                
+                
             </div>
         </div>
     </div>
