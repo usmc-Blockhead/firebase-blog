@@ -1,63 +1,266 @@
-import React from 'react'
+import {
+    collection,
+    deleteDoc,
+    doc,
+    getDocs,
+    limit,
+    onSnapshot,
+    query,
+    orderBy,
+    where,
+    startAfter,
+} from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import BlogSection from "../components/BlogSection";
+import Spinner from "../components/Spinner";
+import { db } from "../firebase";
+import { toast } from "react-toastify";
+import Tags from "../components/Tags";
+import FeatureBlogs from "../components/FeatureBlogs";
+import Trending from "../components/Trending";
+import Search from "../components/Search";
+import { isEmpty, isNull } from "lodash";
+import { useLocation } from "react-router-dom";
+import Category from "../components/Category";
 
-const Home = () => {
+function useQuery() {
+    return new URLSearchParams(useLocation().search);
+}
+
+const Home = ({ setActive, user, active }) => {
+    const [loading, setLoading] = useState(true);
+    const [blogs, setBlogs] = useState([]);
+    const [tags, setTags] = useState([]);
+    const [search, setSearch] = useState("");
+    const [lastVisible, setLastVisible] = useState(null);
+    const [trendBlogs, setTrendBlogs] = useState([]);
+    const [totalBlogs, setTotalBlogs] = useState(null);
+    const [hide, setHide] = useState(false);
+    const queryString = useQuery();
+    const searchQuery = queryString.get("searchQuery");
+    const location = useLocation();
+
+    const getTrendingBlogs = async () => {
+        const blogRef = collection(db, "blogs");
+        const trendQuery = query(blogRef, where("trending", "==", "yes"));
+        const querySnapshot = await getDocs(trendQuery);
+        let trendBlogs = [];
+        querySnapshot.forEach((doc) => {
+            trendBlogs.push({ id: doc.id, ...doc.data() });
+        });
+        setTrendBlogs(trendBlogs);
+    };
+
+    useEffect(() => {
+        getTrendingBlogs();
+        setSearch("");
+        const unsub = onSnapshot(
+            collection(db, "blogs"),
+            (snapshot) => {
+                let list = [];
+                let tags = [];
+                snapshot.docs.forEach((doc) => {
+                    tags.push(...doc.get("tags"));
+                    list.push({ id: doc.id, ...doc.data() });
+                });
+                const uniqueTags = [...new Set(tags)];
+                setTags(uniqueTags);
+                setTotalBlogs(list);
+                // setBlogs(list);
+                setLoading(false);
+                setActive("home");
+            },
+            (error) => {
+                console.log(error);
+            }
+        );
+
+        return () => {
+            unsub();
+            getTrendingBlogs();
+        };
+    }, [setActive, active]);
+
+    useEffect(() => {
+        getBlogs();
+        setHide(false);
+    }, [active]);
+
+    const getBlogs = async () => {
+        const blogRef = collection(db, "blogs");
+        console.log(blogRef);
+        const firstFour = query(blogRef, orderBy("title"), limit(4));
+        const docSnapshot = await getDocs(firstFour);
+        setBlogs(
+            docSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        );
+        setLastVisible(docSnapshot.docs[docSnapshot.docs.length - 1]);
+    };
+
+    console.log("blogs", blogs);
+
+    const updateState = (docSnapshot) => {
+        const isCollectionEmpty = docSnapshot.size === 0;
+        if (!isCollectionEmpty) {
+            const blogsData = docSnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setBlogs((blogs) => [...blogs, ...blogsData]);
+            setLastVisible(docSnapshot.docs[docSnapshot.docs.length - 1]);
+        } else {
+            toast.info("No more blog to display");
+            setHide(true);
+        }
+    };
+
+    const fetchMore = async () => {
+        setLoading(true);
+        const blogRef = collection(db, "blogs");
+        const nextFour = query(
+            blogRef,
+            orderBy("title"),
+            limit(4),
+            startAfter(lastVisible)
+        );
+        const docSnapshot = await getDocs(nextFour);
+        updateState(docSnapshot);
+        setLoading(false);
+    };
+
+    const searchBlogs = async () => {
+        const blogRef = collection(db, "blogs");
+        const searchTitleQuery = query(
+            blogRef,
+            where("title", "==", searchQuery)
+        );
+        const searchTagQuery = query(
+            blogRef,
+            where("tags", "array-contains", searchQuery)
+        );
+        const titleSnapshot = await getDocs(searchTitleQuery);
+        const tagSnapshot = await getDocs(searchTagQuery);
+
+        let searchTitleBlogs = [];
+        let searchTagBlogs = [];
+        titleSnapshot.forEach((doc) => {
+            searchTitleBlogs.push({ id: doc.id, ...doc.data() });
+        });
+        tagSnapshot.forEach((doc) => {
+            searchTagBlogs.push({ id: doc.id, ...doc.data() });
+        });
+        const combinedSearchBlogs = searchTitleBlogs.concat(searchTagBlogs);
+        setBlogs(combinedSearchBlogs);
+        setHide(true);
+        setActive("");
+    };
+
+    useEffect(() => {
+        if (!isNull(searchQuery)) {
+            searchBlogs();
+        }
+    }, [searchQuery, searchBlogs]);
+
+    if (loading) {
+        return <Spinner />;
+    }
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure wanted to delete that blog ?")) {
+            try {
+                setLoading(true);
+                await deleteDoc(doc(db, "blogs", id));
+                toast.success("Blog deleted successfully");
+                setLoading(false);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+    };
+
+    const handleChange = (e) => {
+        const { value } = e.target;
+        if (isEmpty(value)) {
+            console.log("test");
+            getBlogs();
+            setHide(false);
+        }
+        setSearch(value);
+    };
+
+    // category count
+    const counts = totalBlogs.reduce((prevValue, currentValue) => {
+        let name = currentValue.category;
+        if (!prevValue.hasOwnProperty(name)) {
+            prevValue[name] = 0;
+        }
+        prevValue[name]++;
+        // delete prevValue["undefined"];
+        return prevValue;
+    }, {});
+
+    const categoryCount = Object.keys(counts).map((k) => {
+        return {
+            category: k,
+            count: counts[k],
+        };
+    });
+
+    console.log("categoryCount", categoryCount);
+
     return (
-        <div className="container padding">
-        <div className="col-md-12">
-            <div className="row text-left mx-0">
-                <h1>
-                    Welcome to my_Blog!
-                </h1>
-                {/* <p>---------------------------</p>
-                <h2>September 06, 2023</h2>
-                <p>
-                    With the Blog actually 
-                </p> */}
-                <p>---------------------------</p>
-                <h2>September 05, 2023</h2>
-                <p>
-                    I embarked on a journey to create a React blog without prior knowledge of how to deploy it to Firebase. In my quest for guidance, I stumbled upon a fantastic article titled "How to Deploy a React Application to Firebase" by Mritunjay Gupta on Knowledgehut.com. This article expertly guided me through the deployment process.
-                    Thanks to this invaluable resource, I successfully deployed the initial "create-react-app" template to Firebase. Now, my blog is live and easily updatable through Github actions, ensuring a seamless editing process. I am thrilled to share this exciting journey with you, as I transform that initial code into the blog you see before you today.
-                </p>
-                <p>---------------------------</p>
-                <h2>September 04, 2023</h2>
-                <p>
-                    I aspired to craft a portfolio project that would not only demonstrate my versatility but also serve a practical purpose. My aim was to construct a project from its foundation in incremental stages, providing you with insights into the journey and the inevitable hiccups I'd encounter along the way. Moreover, I sought to capture the essence of being a junior developer in today's competitive job market.
+        <div className="container-fluid pb-4 pt-4 padding">
+            <div className="container padding">
+                <div className="row mx-0">
+                    <Trending blogs={trendBlogs} />
+                    <div className="col-md-8">
+                        <div className="blog-heading text-start py-2 mb-4">
+                            Daily Blogs
+                        </div>
+                        {blogs.length === 0 && location.pathname !== "/" && (
+                            <>
+                                <h4>
+                                    No Blog found with search keyword:{" "}
+                                    <strong>{searchQuery}</strong>
+                                </h4>
+                            </>
+                        )}
+                        {blogs?.map((blog) => (
+                            <BlogSection
+                                key={blog.id}
+                                user={user}
+                                handleDelete={handleDelete}
+                                {...blog}
+                            />
+                        ))}
 
-                    After thorough research into various approaches for creating a blog, I settled on leveraging the power of React and Firebase to bring my vision to life.
-                </p>
-                <p>---------------------------</p>
-                <p>
-                    Join me on this exciting journey as I meticulously craft and expand this blog, destined to become a prominent piece in my portfolio. With each step we take, I'll be introducing new features and enhancing its functionality to create a captivating and dynamic web experience. Stay tuned for the ongoing evolution of this project!
-                </p>  
-                <p>
-                    I will be using the following technologies:
-                </p>
-                <p>
-                    <ul className="techList">
-                        <li>React, React Router, React Bootstrap, and Firebase for the front-end</li>
-                        <li>Node.js, Express, MongoDB Atlas and Firebase for the back-end</li>
-                        <li>React Context API for state management</li>
-                        <li>React Hooks for functional components</li>
-                        <li>React Router for routing</li>
-                        <li>React Bootstrap for styling</li>
-                        <li>Firebase for authentication</li>
-                        <li>Firebase Hosting for hosting the application</li>
-                        <li>Firebase Storage for storing images</li>
-                        <li>React Toastify for displaying toast messages</li>
-                        <li>React Tag Input for tags</li>
-                        <li>React Paginate for pagination</li>
-                        <li>React Helmet for SEO</li>
-                        <li>React Quill for the text editor</li>
-                        <li>React Icons for icons</li>
-                    </ul>
-                </p>
-                
-                
+                        {!hide && (
+                            <button
+                                className="btn btn-primary"
+                                onClick={fetchMore}>
+                                Load More
+                            </button>
+                        )}
+                    </div>
+                    <div className="col-md-3">
+                        <Search
+                            search={search}
+                            handleChange={handleChange}
+                        />
+                        <div className="blog-heading text-start py-2 mb-4">
+                            Tags
+                        </div>
+                        <Tags tags={tags} />
+                        <FeatureBlogs
+                            title={"Most Popular"}
+                            blogs={blogs}
+                        />
+                        <Category catgBlogsCount={categoryCount} />
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    )
-}
+    );
+};
 
 export default Home;

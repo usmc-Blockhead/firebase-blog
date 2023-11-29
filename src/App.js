@@ -23,7 +23,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />}/>
         <Route path="/blogs" element={<Blogs />}/>
-        <Route path="/detail/:id" element={<Detail />}/>
+        <Route path="/detail/:id" element={<Detail setActive={setActive} />}/>
         <Route path="/create" element={<AddEditBlog />}/>
         <Route path="/update/:id" element={<AddEditBlog />}/>
         <Route path="/about" element={<About />}/>
