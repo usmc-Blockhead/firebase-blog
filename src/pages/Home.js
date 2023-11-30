@@ -10,7 +10,7 @@ import {
     where,
     startAfter,
 } from "firebase/firestore";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import BlogSection from "../components/BlogSection";
 import Spinner from "../components/Spinner";
 import { db } from "../firebase";
@@ -128,7 +128,7 @@ const Home = ({ setActive, user, active }) => {
         setLoading(false);
     };
 
-    const searchBlogs = async () => {
+    const searchBlogs = useCallback(async () => {
         const blogRef = collection(db, "blogs");
         const searchTitleQuery = query(
             blogRef,
@@ -152,8 +152,8 @@ const Home = ({ setActive, user, active }) => {
         const combinedSearchBlogs = searchTitleBlogs.concat(searchTagBlogs);
         setBlogs(combinedSearchBlogs);
         setHide(true);
-        setActive("");
-    };
+        setActive("")
+    }, [searchQuery]);
 
     useEffect(() => {
         if (!isNull(searchQuery)) {

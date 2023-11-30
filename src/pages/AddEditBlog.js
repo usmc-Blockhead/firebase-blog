@@ -81,19 +81,18 @@ const AddEditBlog = ({ user, setActive }) => {
         file && uploadFile();
     }, [file]);
 
-    useEffect(() => {
-        id && getBlogDetail();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [id]);
-
-    const getBlogDetail = async () => {
-        const docRef = doc(db, "blogs", id);
-        const snapshot = await getDoc(docRef);
-        if (snapshot.exists()) {
+const getBlogDetail = useCallback(async () => {
+    const docRef = doc(db, "blogs", id);
+    const snapshot = await getDoc(docRef);
+    if (snapshot.exists()) {
         setForm({ ...snapshot.data() });
-        }
-        setActive(null);
-    };
+    }
+    setActive(null);
+}, [id, setActive]);
+
+useEffect(() => {
+    id && getBlogDetail();
+}, [id, getBlogDetail]);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });

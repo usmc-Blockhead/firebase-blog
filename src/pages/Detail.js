@@ -12,7 +12,7 @@ import {
     where,
 } from "firebase/firestore";
 import { isEmpty } from "lodash";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import CommentBox from "../components/CommentBox";
@@ -53,16 +53,11 @@ const Detail = ({ setActive, user }) => {
         getRecentBlogs();
     }, []);
 
-    useEffect(() => {
-        id && getBlogDetail();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [id]);
-
     if (loading) {
         return <Spinner />;
     }
 
-    const getBlogDetail = async () => {
+    const getBlogDetail = useCallback(async () => {
         setLoading(true);
         const blogRef = collection(db, "blogs");
         const docRef = doc(db, "blogs", id);
@@ -94,7 +89,11 @@ const Detail = ({ setActive, user }) => {
         setRelatedBlogs(relatedBlogs);
         setActive(null);
         setLoading(false);
-    };
+    }, [id]);
+
+    useEffect(() => {
+        id && getBlogDetail();
+    }, [id, getBlogDetail]);
 
     const handleComment = async (e) => {
         e.preventDefault();
