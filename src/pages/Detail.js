@@ -53,10 +53,6 @@ const Detail = ({ setActive, user }) => {
         getRecentBlogs();
     }, []);
 
-    if (loading) {
-        return <Spinner />;
-    }
-
     const getBlogDetail = useCallback(async () => {
         setLoading(true);
         const blogRef = collection(db, "blogs");
@@ -68,25 +64,28 @@ const Detail = ({ setActive, user }) => {
         let uniqueTags = [...new Set(tags)];
         setTags(uniqueTags);
         setBlog(blogDetail.data());
-        const relatedBlogsQuery = query(
-            blogRef,
-            where(
-                "tags",
-                "array-contains-any",
-                blogDetail.data().tags,
-                limit(3)
-            )
-        );
+        if (blogDetail.data().length > 0) {
+            const relatedBlogsQuery = query(
+                blogRef,
+                where(
+                    "tags",
+                    "array-contains-any",
+                    blogDetail.data().tags,
+                    limit(3)
+                )
+            );
+            const relatedBlogSnapshot = await getDocs(relatedBlogsQuery);
+            const relatedBlogs = [];
+            relatedBlogSnapshot.forEach((doc) => {
+                relatedBlogs.push({ id: doc.id, ...doc.data() });
+            });
+            setRelatedBlogs(relatedBlogs);
+        }
+
         setComments(
             blogDetail.data().comments ? blogDetail.data().comments : []
         );
         setLikes(blogDetail.data().likes ? blogDetail.data().likes : []);
-        const relatedBlogSnapshot = await getDocs(relatedBlogsQuery);
-        const relatedBlogs = [];
-        relatedBlogSnapshot.forEach((doc) => {
-            relatedBlogs.push({ id: doc.id, ...doc.data() });
-        });
-        setRelatedBlogs(relatedBlogs);
         setActive(null);
         setLoading(false);
     }, [id]);
@@ -94,6 +93,10 @@ const Detail = ({ setActive, user }) => {
     useEffect(() => {
         id && getBlogDetail();
     }, [id, getBlogDetail]);
+
+    if (loading) {
+        return <Spinner />;
+    }
 
     const handleComment = async (e) => {
         e.preventDefault();

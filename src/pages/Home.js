@@ -9,6 +9,7 @@ import {
     orderBy,
     where,
     startAfter,
+    and,
 } from "firebase/firestore";
 import React, { useState, useEffect, useCallback } from "react";
 import BlogSection from "../components/BlogSection";
@@ -38,6 +39,7 @@ const Home = ({ setActive, user, active }) => {
     const [hide, setHide] = useState(false);
     const queryString = useQuery();
     const searchQuery = queryString.get("searchQuery");
+    console.log("searchQuery", searchQuery);
     const location = useLocation();
 
     const getTrendingBlogs = async () => {
@@ -132,7 +134,7 @@ const Home = ({ setActive, user, active }) => {
         const blogRef = collection(db, "blogs");
         const searchTitleQuery = query(
             blogRef,
-            where("title", "==", searchQuery)
+            where("title", ">=", searchQuery),where("title", "<=", searchQuery+ "~")
         );
         const searchTagQuery = query(
             blogRef,
